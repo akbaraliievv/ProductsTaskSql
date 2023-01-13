@@ -1,0 +1,201 @@
+create table products(
+    id          serial primary key,
+    name        varchar,
+    description varchar,
+    price       int,
+    weight      real
+);
+
+create table customers(
+    id           serial primary key,
+    firs_name    varchar(50) not null,
+    last_name    varchar(70) not null,
+    email        varchar unique,
+    phone_number varchar
+);
+create table basket(
+    id          serial primary key,
+    basket_name varchar,
+    customer_id int references customers (id)
+);
+
+create table product_info(
+    id              serial primary key,
+    expiration_date date,
+    country         varchar,
+    colour          varchar,
+    products_id     int references products (id)
+);
+
+create table product_basket(
+    id         serial primary key,
+    basket_id  int references basket (id),
+    product_id int references products (id)
+);
+
+insert into products(name, description, price, weight)
+values ('Milk', 'Dairy products', 80, 1.00),
+       ('Banana', 'Fruit products', 150, 1.0),
+       ('Bread', 'Breads products', 30, 1),
+       ('Twix', 'Chocolate products', 50, 1),
+       ('Minced meat', 'Meat products', 300, 1.0),
+       ('J7', 'Juice products', 120, 1.00),
+       ('Legenda', 'Water products', 105, 5.00),
+       ('Zewa', 'Hygiene products', 180, 8);
+
+insert into products(name, description, price, weight)
+values ('Pepsi', 'Juice', 80, 1),
+       ('Kinder', 'Chocolate', 110, 1);
+
+insert into customers(firs_name, last_name, email, phone_number)
+values ('Dastan', 'Akbaraliev', 'd@gmail.com', '+996222000222'),
+       ('Ilim', 'Shabdanov', 'i@gmail.com', '+996700222000'),
+       ('Nurik', 'Djoldoshov', 'n@gmail.com', '+996500000555');
+
+insert into customers(firs_name, last_name, email, phone_number)
+values ('Sanzhar', 'Abdumomunov', 's@gmail.ru', null),
+       ('Alibek', 'Altynbek u', 'a@gmail.kg', null),
+       ('Bayish', 'Orozaliev', 'o@gmail.com', '+996312321123');
+
+insert into basket(basket_name, customer_id)
+values ('small basket', 4),
+       ('medium basket', 5),
+       ('large basket', 8),
+       ('small basket', 7),
+       ('medium basket', 9),
+       ('large basket', 6);
+
+insert into product_info(expiration_date, country, colour, products_id)
+values (date'2023-01-30', 'Kyrgyzstan', 'white', 11),
+       (date'2021-02-15', 'Morocco', 'yellow', 12),
+       (date'2023-01-14', 'Kyrgyzstan', 'grey', 13),
+       (date'2022-03-01', 'Germany', 'brown', 14),
+       (date'2023-02-02', 'Kyrgyzstan', 'red', 15),
+       (date'2024-01-01', 'Russian', 'white', 16),
+       (date'2024-05-05', 'Kyrgyzstan', 'blue', 17),
+       (date'2024-05-05', 'Russian', 'white', 18);
+
+insert into product_info(expiration_date, country, colour, products_id)
+values (date'2022-10-10', 'USA', 'blue', null),
+       (date '2023-05-05', 'Russian', 'white', null);
+
+insert into product_basket(basket_id, product_id)
+values (10, 14),
+       (11, 12),
+       (12, 13),
+       (13, 11),
+       (14, 15),
+       (15, 16);
+
+------------------------------------------11111111111111111111111111---------------------------------------
+select *
+from products
+         left join product_info pi on products.id = pi.products_id;
+------------------------------------------22222222222222222222222222---------------------------------------
+select *
+from products
+         join product_info pi on products.id = pi.products_id;
+------------------------------------------33333333333333333333333333---------------------------------------
+select *
+from products
+         left join product_info pi on products.id = pi.products_id
+where pi.id is null;
+------------------------------------------444444444444444444444444444--------------------------------------
+select name, expiration_date
+from products
+         join product_info pi on products.id = pi.products_id;
+------------------------------------------555555555555555555555555555--------------------------------------
+select *
+from products
+         join product_info pi on products.id = pi.products_id
+where country like 'M%';
+------------------------------------------666666666666666666666666666--------------------------------------
+select firs_name, basket_name
+from customers
+         join basket b on customers.id = b.customer_id
+order by basket_name desc;
+------------------------------------------777777777777777777777777777--------------------------------------
+select firs_name, name
+from customers
+         join basket b on customers.id = b.customer_id
+         join product_basket pb on b.id = pb.basket_id
+         join products p on p.id = pb.product_id;
+------------------------------------------888888888888888888888888888---------------------------------------
+select firs_name, name, price, weight
+from customers
+         join basket b on customers.id = b.customer_id
+         join product_basket pb on b.id = pb.basket_id
+         join products p on p.id = pb.product_id;
+------------------------------------------999999999999999999999999999----------------------------------------
+select distinct(name), firs_name, price, weight
+from customers
+         join basket b on customers.id = b.customer_id
+         join product_basket pb on b.id = pb.basket_id
+         join products p on p.id = pb.product_id;
+------------------------------------------111111111111100000000000000----------------------------------------
+select *
+from products
+         join product_info pi on products.id = pi.products_id
+where country = 'Kyrgyzstan';
+------------------------------------------11111111111111 111111111111----------------------------------------
+select firs_name, name, round(price)
+from customers
+         join basket b on customers.id = b.customer_id
+         join product_basket pb on b.id = pb.basket_id
+         join products p on p.id = pb.product_id;
+------------------------------------------11111111111111 2222222222222----------------------------------------
+select name, expiration_date
+from products
+         join product_info pi on products.id = pi.products_id
+where expiration_date between date '2021-01-01' and date '2022-12-31';
+------------------------------------------11111111111111 3333333333333---------------------------------------
+select name, country, price
+from products
+         right join product_info pi on products.id = pi.products_id
+where expiration_date between date '2022-1-1' and date '2022-12-31';
+------------------------------------------11111111111111 4444444444444----------------------------------------
+select sum(price)
+from customers
+         join basket b on customers.id = b.customer_id
+         join product_basket pb on b.id = pb.basket_id
+         join products p on p.id = pb.product_id;
+-----------------------------------------111111111111111 55555555555555 --------------------------------------
+select firs_name, name, colour
+from customers
+         join basket b on customers.id = b.customer_id
+         join product_basket pb on b.id = pb.basket_id
+         join products p on p.id = pb.product_id
+         join product_info pi on p.id = pi.products_id;
+-----------------------------------------111111111111111 66666666666666 ---------------------------------------
+select name, weight
+from products
+         join product_info pi on products.id = pi.products_id;
+-----------------------------------------111111111111111 77777777777777----------------------------------------
+select firs_name, basket_name, email
+from customers
+         join basket b on customers.id = b.customer_id
+where email like '%com';
+-----------------------------------------111111111111111 88888888888888----------------------------------------
+select name, description, firs_name, phone_number
+from customers
+         join basket b on customers.id = b.customer_id
+         join product_basket pb on b.id = pb.basket_id
+         join products p on p.id = pb.product_id
+where phone_number is null;
+-----------------------------------------111111111111111 999999999999999-----------------------------------------
+select name, colour
+from product_info
+         join products p on p.id = product_info.products_id;
+select name, colour
+from product_info
+         join products p on p.id = product_info.products_id
+where colour = 'white';
+-----------------------------------------2222222222222220000000000000000------------------------------------------
+select distinct (country) , name, firs_name
+from customers
+         join basket b on customers.id = b.customer_id
+         join product_basket pb on b.id = pb.basket_id
+         join products p on p.id = pb.product_id
+         join product_info pi on p.id = pi.products_id
+where country = country ;
+
